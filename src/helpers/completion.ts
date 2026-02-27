@@ -27,7 +27,7 @@ function getOpenAi(key: string, apiEndpoint: string) {
 
 // Openai outputs markdown format for code blocks. It oftne uses
 // a github style like: "```bash"
-const shellCodeExclusions = [/```[a-zA-Z]*\n/gi, /```[a-zA-Z]*/gi, '\n'];
+const shellCodeExclusions = [/```[a-zA-Z]*\n?/gi, /```[a-zA-Z]*/gi, '\n'];
 
 export async function getScriptAndInfo({
   prompt,
