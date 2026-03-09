@@ -1,5 +1,5 @@
 import * as p from '@clack/prompts';
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { cyan, dim } from 'kolorist';
 import {
   getExplanation,
@@ -40,7 +40,7 @@ async function runScript(script: string) {
   p.outro(`${i18n.t('Running')}: ${script}`);
   console.log('');
   try {
-    await execaCommand(script, {
+    await execa(script, {
       stdio: 'inherit',
       shell: process.env.SHELL || true,
     });
