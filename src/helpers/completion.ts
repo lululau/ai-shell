@@ -224,19 +224,22 @@ export const readData =
 
           if (payload.startsWith('data:')) {
             content = parseContent(payload);
-            // Use buffer only for start detection
             if (!dataStart) {
-              // Append content to the buffer
               buffer += content;
-              if (buffer.match(excludedPrefix ?? '')) {
-                dataStart = true;
-                // Clear the buffer once it has served its purpose
-                buffer = '';
-                if (excludedPrefix) break;
-              }
-            }
+              const hasNewline = buffer.includes('\n');
+              const hasClosingBackticks = buffer.indexOf('```', 3) > 0;
+              const isComplete = hasNewline || hasClosingBackticks;
 
-            if (dataStart && content) {
+              if (isComplete && buffer.match(excludedPrefix ?? '')) {
+                dataStart = true;
+                const contentWithoutExcluded = extractCodeContent(buffer);
+                buffer = '';
+                if (contentWithoutExcluded) {
+                  data += contentWithoutExcluded;
+                  writer(contentWithoutExcluded);
+                }
+              }
+            } else if (content) {
               const contentWithoutExcluded = stripRegexPatterns(
                 content,
                 excluded
@@ -257,6 +260,16 @@ export const readData =
         } catch (error) {
           return `Error with JSON.parse and ${payload}.\n${error}`;
         }
+      }
+
+      function extractCodeContent(codeBlock: string): string {
+        let result = codeBlock;
+        if (result.includes('\n')) {
+          result = result.replace(/```[a-zA-Z]*\n?/gi, '');
+        } else {
+          result = result.replace(/```/g, '');
+        }
+        return result.replace(/\n$/g, '');
       }
 
       resolve(data);
