@@ -265,7 +265,11 @@ export const readData =
       function extractCodeContent(codeBlock: string): string {
         let result = codeBlock;
         if (result.includes('\n')) {
-          result = result.replace(/```[a-zA-Z]*\n?/gi, '');
+          // First, remove code block language identifiers (e.g. ```bash\n)
+          // Only treat letters after ``` as a language tag when followed by \n
+          result = result.replace(/```[a-zA-Z]*\n/gi, '');
+          // Then remove any remaining ``` markers (closing backticks)
+          result = result.replace(/```/g, '');
         } else {
           result = result.replace(/```/g, '');
         }
